@@ -1,25 +1,25 @@
-import logo from './logo.svg';
-import './App.css';
+import "./App.css";
+import "../node_modules/bulma/css/bulma.css";
+import "../node_modules/animate.css";
+import "../node_modules/@fortawesome/fontawesome-free/css/all.css";
+import React, { Component } from "react";
+import BurgerBuilder from "./containers/burgerBuilder/BurgerBuilder";
+import Navbar from "./components/Navbar/Navbar";
+import Orders from "./containers/Orders/Orders";
+import { Route } from "react-router";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends Component {
+  render() {
+    return (
+      <div className="">
+        <Navbar />
+        <div className="section">
+          <Route path="/" component={BurgerBuilder} exact />
+          <Route path="/Orders" component={Orders} exact />
+        </div>
+      </div>
+    );
+  }
 }
 
 export default App;
