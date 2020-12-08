@@ -2,13 +2,16 @@ import React from "react";
 
 const BuildControl = (props) => {
   return (
-    <div className="notification">
-      <div className="level is-mobile   ">
+    <div
+      className="notification"
+      // style={{ boxShadow: "2px 2px grey", border: "1px solid grey" }}
+    >
+      <div className="level is-mobile">
         <div className="level-item">
           <p className="is-size-4 has-text-weight-semibold">
             {props.control.label}
-            <span style={{ opacity: "0.7" }} className="is-size-5">
-              -- ( ${props.price} )
+            <span style={{ opacity: "0.7" }} className="is-size-5 ml-3">
+              ( ${props.price} )
             </span>
           </p>
         </div>

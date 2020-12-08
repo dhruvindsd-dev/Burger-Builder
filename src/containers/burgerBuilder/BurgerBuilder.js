@@ -1,12 +1,13 @@
-import Axios from "axios";
 import React, { Component } from "react";
 import BuildControls from "../../components/BuildControls/BuildControls";
 import Burger from "../../components/Burger/Burger";
+import Loader from "../../components/UI/Loader/Loader";
 import OrderSummary from "../../components/Burger/OrderSummary/OrderSummary";
 import Modal from "../../components/UI/Modal/Modal";
-import Loader from "../../components/UI/Loader/Loader";
-import DeliveryForm from "../../components/DeliveryForm/DeliveryForm";
-
+import { connect } from "react-redux";
+import * as actionTypes from "../../store/actions/actions";
+import Axios from "axios";
+import { authenticate } from "../../store/actions/auth";
 const INGREDIENTPRICES = {
   meat: 0.5,
   salad: 0.2,
@@ -16,241 +17,111 @@ const INGREDIENTPRICES = {
 
 class BurgerBuilder extends Component {
   state = {
-    ingredients: {
-      meat: 0,
-      salad: 0,
-      cheese: 0,
-      bacon: 0,
-    },
-    orderForm: {
-      Name: {
-        elementType: "input",
-        value: "",
-        touched: false,
-        valid: false,
-        validation: {
-          required: true,
-          maxlength: 5,
-        },
-        elementConfig: {
-          type: "text",
-          placeholder: "Your name ",
-        },
-      },
-      "Contact No": {
-        elementType: "input",
-        value: "",
-        touched: false,
-        valid: false,
-        validation: {
-          required: true,
-          maxlength: 20,
-        },
-        elementConfig: {
-          type: "number",
-          placeholder: "Your contact number",
-        },
-      },
-      Address: {
-        elementType: "textarea",
-        value: "",
-        touched: false,
-        valid: false,
-        validation: {
-          required: true,
-        },
-        elementConfig: {
-          type: "text",
-          placeholder: "Your complete address",
-        },
-      },
-    },
-    previousOrder: null,
-    totalPrice: 4,
-    isPurchaseable: false,
     isOrderSummary: false,
-    orderDataLoading: false,
-    isDeliveryDetails: false,
-    isDeliveryDetailsLoading: false,
-    orderFormIsValid: false,
+    isLoadingBurger: true,
   };
+  componentDidMount() {
+    // get the initial burger data from the server and also the recipes but before that just save the ingredients on the server
+    if (this.props.initialBurger) {
+      this.setState({ isLoadingBurger: false });
+    }
+    if (!this.props.initialBurger) {
+      Axios.get("https://recipe-app-ab93d.firebaseio.com/details.json").then(
+        (response) => {
+          Object.keys(response.data.ingredients).map((item) => {
+            for (let i = 0; i < response.data.ingredients[item]; i++) {
+              this.props.addIngredientHandler(item);
+            }
+          });
+          // this.props.toggleInitialBurgerLoad();
+          this.props.cacheBurger(response.data.ingredients);
+          this.setState({ isLoadingBurger: false });
+        }
+      );
+    }
+  }
 
-  checkValidity = (rules, value) => {
-    let isValid = true;
-    if (rules.maxlength) {
-      isValid = value.length <= rules.maxlength && isValid;
-    }
-    if (rules.required) {
-      isValid = value.trim() !== "" && isValid;
-    }
-    console.log(isValid);
-    return isValid;
-  };
-  inputChangehandler = (inputIdentifier, event) => {
-    const updatedOrderForm = {
-      ...this.state.orderForm,
-    };
-    const updatedFormElement = {
-      ...updatedOrderForm[inputIdentifier],
-    };
-    updatedFormElement.value = event.target.value;
-    updatedOrderForm[inputIdentifier] = updatedFormElement;
-    updatedFormElement.valid = this.checkValidity(
-      updatedFormElement.validation,
-      updatedFormElement.value
-    );
-    updatedFormElement.touched = true;
-
-    let isFormValid = true;
-    for (let item in updatedOrderForm) {
-      if (!updatedOrderForm[item].valid) {
-        console.log(item, this.state.orderForm[item].valid);
-        isFormValid = false;
-        break;
-      }
-    }
-    this.setState({
-      orderForm: updatedOrderForm,
-      orderFormIsValid: isFormValid,
-    });
-  };
-  orderHandler = () => {
-    // make a object with burger details and delivery information and total price
-    const formData = {};
-    // addeing burgerInfo
-    formData.burgerIngredients = this.state.ingredients;
-    // adding total price
-    formData.totalPrice = this.state.totalPrice;
-    // adding delivery Instructions
-    formData.deliveryDetials = {};
-    Object.keys(this.state.orderForm).map((item) => {
-      formData.deliveryDetials[item] = this.state.orderForm[item].value;
-    });
-    this.setState({
-      isDeliveryDetailsLoading: true,
-    });
-    Axios.post(
-      "https://recipe-app-ab93d.firebaseio.com/burger.json",
-      formData
-    ).then((response) => {
-      this.setState({
-        isDeliveryDetailsLoading: false,
-      });
-      console.log(this.props);
-      this.props.history.push("orders");
-    });
-  };
-  updatePurchaseHamdler = () => {
-    const ingredients = { ...this.state.ingredients };
-    const sum = Object.keys(ingredients)
-      .map((item) => {
-        return ingredients[item];
-      })
-      .reduce((sum, next) => {
-        return sum + next;
-      }, 0);
-    this.setState({ isPurchaseable: sum > 0 });
-  };
-  addIngredientHandler = (type) => {
-    const updatedIngredients = { ...this.state.ingredients };
-    updatedIngredients[type]++;
-    this.setState(
-      {
-        ingredients: updatedIngredients,
-        totalPrice: this.state.totalPrice + INGREDIENTPRICES[type],
-      },
-      this.updatePurchaseHamdler
-    );
-  };
-  removeIngredienthandler = (type) => {
-    const updatedIngredients = { ...this.state.ingredients };
-    if (updatedIngredients[type] === 0) {
-      return;
-    }
-    updatedIngredients[type]--;
-    this.setState(
-      {
-        ingredients: updatedIngredients,
-        totalPrice: this.state.totalPrice - INGREDIENTPRICES[type],
-      },
-      this.updatePurchaseHamdler
-    );
-  };
   onOrderClickHandler = () => {
-    this.setState({
-      isOrderSummary: false,
-      isDeliveryDetails: true,
-    });
+    this.props.history.push("checkout");
   };
 
   render() {
     const disabledInfo = {
-      ...this.state.ingredients,
+      ...this.props.ingredients,
     };
     for (let key in disabledInfo) {
-      disabledInfo[key] = this.state.ingredients[key] <= 0;
+      disabledInfo[key] = this.props.ingredients[key] <= 0;
     }
     let modal;
     if (this.state.isOrderSummary) {
       modal = (
         <Modal>
-          {this.state.orderDataLoading ? (
-            <Loader />
-          ) : (
-            <OrderSummary
-              totalPrice={this.state.totalPrice}
-              ingredients={this.state.ingredients}
-              cancelClick={() => {
-                this.setState({ isOrderSummary: false });
-              }}
-              orderClick={this.onOrderClickHandler}
-            />
-          )}
-        </Modal>
-      );
-    } else if (this.state.isDeliveryDetails) {
-      modal = (
-        <Modal>
-          {this.state.isDeliveryDetailsLoading ? (
-            <Loader />
-          ) : (
-            <DeliveryForm
-              change={this.inputChangehandler}
-              isFormValid={this.state.orderFormIsValid}
-              formDetails={this.state.orderForm}
-              confirmOrderClick={this.orderHandler}
-              cancelOrderClick={() => {
-                this.setState({ isDeliveryDetails: false });
-              }}
-            />
-          )}
+          <OrderSummary
+            totalPrice={this.props.totalPrice}
+            ingredients={this.props.ingredients}
+            cancelClick={() => {
+              this.setState({ isOrderSummary: false });
+            }}
+            orderClick={this.onOrderClickHandler}
+          />
         </Modal>
       );
     }
     return (
-      <React.Fragment>
+      <div className="columns is-centered section ">
         {modal}
-        <div className="columns">
-          <div className="column is-5">
-            <Burger ingredients={this.state.ingredients} />
-          </div>
-          <div className="column">
-            <BuildControls
-              ingredientsPrice={INGREDIENTPRICES}
-              totalPrice={this.state.totalPrice}
-              moreClick={this.addIngredientHandler}
-              lessClick={this.removeIngredienthandler}
-              disabledInfo={disabledInfo}
-              purchasable={this.state.isPurchaseable}
-              purchaseClick={() => {
-                this.setState({ isOrderSummary: !this.state.isOrderSummary });
-              }}
-            />
-          </div>
+        <div className="column is-4">
+          {this.state.isLoadingBurger ? (
+            <React.Fragment>
+              <Loader />
+              <p className="is-size-3">Creating A Delicious Burger For You</p>
+            </React.Fragment>
+          ) : (
+            <Burger ingredients={this.props.ingredients} />
+          )}
         </div>
-      </React.Fragment>
+        <div className="column is-1"></div>
+        <div className="column is-5">
+          <BuildControls
+            ingredientsPrice={INGREDIENTPRICES}
+            disabledInfo={disabledInfo}
+            purchaseClick={() => {
+              this.setState({ isOrderSummary: true });
+            }}
+          />
+        </div>
+      </div>
     );
   }
 }
+const mapStateToProps = (state) => {
+  return {
+    ingredients: state.burger.ingredients,
+    isPurchaseable: state.burger.isPurchasable,
+    totalPrice: state.burger.totalPrice,
+    authState: state.auth.isAuthenticated,
+    didInitialLoad: state.burger.didInitialLoad,
+    initialBurger: state.cache.initialBurger,
+  };
+};
+const mapDispatchToProps = (dispatch) => {
+  return {
+    addIngredientHandler: (type) => {
+      dispatch({
+        type: actionTypes.ADD_INGREDIENT,
+        payload: { type: type },
+      });
+    },
+    toggleInitialBurgerLoad: () => {
+      dispatch({ type: actionTypes.TOGGLE_INITIAL_BURGER_LOAD });
+    },
+    cacheBurger: (burger) => {
+      dispatch({
+        type: actionTypes.CACHE_INITIAL_BURGER,
+        payload: { burger: burger },
+      });
+    },
+  };
+};
 
-export default BurgerBuilder;
+export default connect(mapStateToProps, mapDispatchToProps)(BurgerBuilder);

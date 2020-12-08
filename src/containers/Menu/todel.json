@@ -1,0 +1,20 @@
+{
+  "Cheesy": {
+    "meat": 0,
+    "salad": 1,
+    "cheese": 3,
+    "bacon": 0
+  },
+  "Veggie Delight": {
+    "meat": 0,
+    "salad": 3,
+    "cheese": 1,
+    "bacon": 0
+  },
+  "Simple": {
+    "meat": 1,
+    "salad": 1,
+    "cheese": 1,
+    "bacon": 1
+  }
+}

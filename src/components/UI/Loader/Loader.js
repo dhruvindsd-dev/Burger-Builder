@@ -3,9 +3,11 @@ import "./Loader.css";
 
 const Loader = () => {
   return (
-    <div className="lds-ripple">
-      <div></div>
-      <div></div>
+    <div className="section has-text-centered">
+      <div className="lds-ripple">
+        <div></div>
+        <div></div>
+      </div>
     </div>
   );
 };

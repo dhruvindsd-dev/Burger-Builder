@@ -4,7 +4,7 @@ export default function Input(props) {
   let inputElement = null;
   let invalidClass = "";
   if (!props.valid && props.touched) {
-    invalidClass = "is-danger error-input ";
+    invalidClass = "is-danger";
   }
 
   switch (props.elementType) {
