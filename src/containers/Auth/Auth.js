@@ -1,7 +1,7 @@
-import Axios from "axios";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { withRouter } from "react-router";
+import { Link } from "react-router-dom";
 import ErrorBox from "../../components/UI/Error/ErrorBox";
 import Input from "../../components/UI/Input/Input";
 import { authenticate } from "../../store/actions/auth";
@@ -40,6 +40,7 @@ class Auth extends Component {
     formIsValid: false,
     isSignUp: false,
     errorMsg: "",
+    redirect: "",
   };
 
   checkValidity = (rules, value) => {
@@ -91,18 +92,20 @@ class Auth extends Component {
         this.state.orderForm.password.value
       )
       .then(() => {
-        this.props.history.push("/");
+        this.props.history.push(`/${this.state.redirect}`);
       })
       .catch((error) => {
-        console.log(error);
+        console.log("in catch error");
         this.setState({ isLoading: false, errorMsg: error.data.error.message });
       });
   };
   componentDidMount() {
-    console.log(this.props);
+    const redirectParam = new URLSearchParams(this.props.location.search).get(
+      "redirect"
+    );
     const type = this.props.match.params.type;
     if (type == "signup" && !this.state.isSignUp) {
-      this.setState({ isSignUp: true });
+      this.setState({ isSignUp: true, redirect: redirectParam });
     }
   }
   componentDidUpdate() {
@@ -165,6 +168,15 @@ class Auth extends Component {
                     Submit
                   </button>
                 </div>
+                {this.state.isSignUp ? (
+                  <Link to={`./signin?redirect=${this.state.redirect}`}>
+                    Aldready Have A Account ? Click Here To Sign In
+                  </Link>
+                ) : (
+                  <Link to={`./signup?redirect=${this.state.redirect}`}>
+                    Dont Have A Account ? Click Here To Sign Up
+                  </Link>
+                )}
               </div>
             </div>
           </div>

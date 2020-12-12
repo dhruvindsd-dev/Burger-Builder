@@ -60,10 +60,9 @@ export default (state = initialState, { type, payload }) => {
       };
     case actionTypes.RESET_BURGER:
       let updateIngredients = {};
-      Object.keys(state.ingredients).map((item) => {
-        updateIngredients[item] = 0;
-      });
-      console.log(updateIngredients);
+      Object.keys(state.ingredients).map(
+        (item) => (updateIngredients[item] = 0)
+      );
       return {
         ...state,
         ingredients: updateIngredients,

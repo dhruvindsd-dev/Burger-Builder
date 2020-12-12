@@ -29,7 +29,7 @@ const BuildControls = (props) => {
   } else {
     button = (
       <Link
-        to="/user/signup"
+        to="/user/signup?redirect=checkout"
         className="button is-large is-success is-fullwidth"
       >
         <span className="icon">

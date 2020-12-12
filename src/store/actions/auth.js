@@ -1,7 +1,7 @@
 import Axios from "axios";
 import { AUTHENTICATE } from "./actions";
 
-export const authenticate = (isSignUp, email, password, route) => {
+export const authenticate = (isSignUp, email, password) => {
   // 1.email , 2. password
   return (dispatch) => {
     // some async thing
@@ -13,7 +13,6 @@ export const authenticate = (isSignUp, email, password, route) => {
       url =
         "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyDHx6tjGf3HFOpd9qdLJmLKwhReZBVaw30";
     }
-    console.log("async action working bitch ", email);
     return Axios.post(url, {
       email: email,
       password: password,
@@ -27,9 +26,10 @@ export const authenticate = (isSignUp, email, password, route) => {
           type: AUTHENTICATE,
           payload: {
             token: response.data.idToken,
+            userId: response.data.localId,
           },
         });
-        // route("/");
+        console.log(response);
         return response;
       })
       .catch((error) => {

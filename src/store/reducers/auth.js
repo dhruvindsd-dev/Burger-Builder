@@ -3,6 +3,7 @@ import * as actionTypes from "../actions/actions";
 const initialState = {
   isAuthenticated: false,
   authToken: "",
+  userId: "",
 };
 
 export default (state = initialState, { type, payload }) => {
@@ -13,13 +14,12 @@ export default (state = initialState, { type, payload }) => {
           ...state,
           isAuthenticated: true,
           authToken: payload.token,
-          showAutoLoginLoader: false,
+          userId: payload.userId,
         };
       } else {
         // some error occured so just remove the loader
         return {
           ...state,
-          showAutoLoginLoader: false,
         };
       }
     case actionTypes.LOGOUT:

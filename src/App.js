@@ -5,28 +5,36 @@ import "../node_modules/@fortawesome/fontawesome-free/css/all.css";
 import React, { Component, lazy, Suspense } from "react";
 import BurgerBuilder from "./containers/burgerBuilder/BurgerBuilder";
 import Navbar from "./components/Navbar/Navbar";
-import { Route, Switch, withRouter } from "react-router";
+import { Route, Switch } from "react-router";
 import { connect } from "react-redux";
-
 import { authenticate } from "./store/actions/auth";
 import Loader from "./components/UI/Loader/Loader";
 import { AUTHENTICATE } from "./store/actions/actions";
-import Menu from "./containers/Menu/Menu";
+import notFound from "./containers/notFound/notFound";
+
 const Checkout = lazy(() => import("./containers/Checkout/Checkout"));
 const Auth = lazy(() => import("./containers/Auth/Auth"));
 const Orders = lazy(() => import("./containers/Orders/Orders"));
-
+// const Menu = lazy(() =>
+//   import("./containers/Menu/Menu")
+//     .then((response) => {
+//       console.log(response);
+//     })
+//     .catch((err) => {
+//       console.log("there is a fking error mother fucxker ", err);
+//     })
+// );
+const Menu = lazy(() => import("./containers/Menu/Menu"));
 class App extends Component {
   state = {
-    isLoading: false,
+    isLoading: true,
   };
   componentDidMount() {
     const email = localStorage.getItem("email");
     const password = localStorage.getItem("password");
-    console.log(email);
     if (email && password) {
       this.props
-        .autoLogin(email, password, this.props.history.push)
+        .autoLogin(email, password)
         .then(() => {
           this.setState({
             isLoading: false,
@@ -41,20 +49,45 @@ class App extends Component {
     }
   }
   render() {
-    let routes;
+    let routes = (
+      <Switch>
+        <Route path="/" component={BurgerBuilder} exact />
+        <Route
+          path="/menu"
+          exact
+          render={() => (
+            <Suspense fallback={<Loader />}>
+              <Menu />
+            </Suspense>
+          )}
+        />
+        <Route path="/user/:type" component={Menu} />
+        <Route
+          path="/user/:type"
+          exact
+          render={() => (
+            <Suspense fallback={<Loader />}>
+              <Auth />
+            </Suspense>
+          )}
+        />
+        <Route component={notFound} />
+      </Switch>
+    );
     if (this.props.authState) {
       routes = (
-        <React.Fragment>
-          {/* <Route
-            path="/orders"
-            // render={() => (
-            //   <Suspense fallback={<Loader />}>
-
-            //   </Suspense>
-            // )}
-            component={Menu}
+        <Switch>
+          <Route path="/" component={BurgerBuilder} exact />
+          {/* <Route path="/menu" component={Menu} /> */}
+          <Route
+            path="/menu"
             exact
-          /> */}
+            render={() => (
+              <Suspense fallback={<Loader />}>
+                <Menu />
+              </Suspense>
+            )}
+          />
           <Route
             path="/orders"
             render={() => (
@@ -73,19 +106,8 @@ class App extends Component {
             )}
             exact
           />
-        </React.Fragment>
-      );
-    } else {
-      routes = (
-        <Route
-          path="/user/:type"
-          exact
-          render={() => (
-            <Suspense fallback={<Loader />}>
-              <Auth />
-            </Suspense>
-          )}
-        />
+          <Route component={notFound} />
+        </Switch>
       );
     }
     return (
@@ -95,19 +117,7 @@ class App extends Component {
         ) : (
           <React.Fragment>
             <Navbar auth={this.props.isAuthenticated} />
-            <Switch>
-              <Route path="/" component={BurgerBuilder} exact />
-              <Route path="/menu" component={Menu} />
-              {/* <Route path="/orders" component={Orders} /> */}
-              {routes}
-              {/* <Route path="/404" exact component={notFound} /> */}
-              {/* <Redirect to="/404" component={notFound} /> */}
-            </Switch>
-            {/* {props.isAuthenticated ? (
-
-          ) : (
-            <Route path="/user/:type" exact component={Auth} />
-          )} */}
+            {routes}
           </React.Fragment>
         )}
       </React.Fragment>
@@ -122,14 +132,14 @@ const mapStateToProps = (state) => {
 };
 const mapDispatchToProps = (dispatch) => {
   return {
-    autoLogin: (email, password, route) => {
-      return dispatch(authenticate(false, email, password, route));
+    autoLogin: (email, password) => {
+      return dispatch(authenticate(false, email, password));
     },
     autoLoginFail: () => {
-      // this is to remove the loading animation ....
+      //  remove the loading animation if autologin fails ....
       dispatch({ type: AUTHENTICATE, payload: {} });
     },
   };
 };
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(App));
+export default connect(mapStateToProps, mapDispatchToProps)(App);

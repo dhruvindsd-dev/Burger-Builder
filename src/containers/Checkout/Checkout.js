@@ -62,7 +62,6 @@ class Checkout extends Component {
     if (rules.required) {
       isValid = value.trim() !== "" && isValid;
     }
-    console.log(isValid);
     return isValid;
   };
   inputChangehandler = (inputIdentifier, event) => {
@@ -82,7 +81,6 @@ class Checkout extends Component {
     let isFormValid = true;
     for (let item in updatedOrderForm) {
       if (!updatedOrderForm[item].valid) {
-        console.log(item, this.state.orderForm[item].valid);
         isFormValid = false;
         break;
       }
@@ -104,10 +102,13 @@ class Checkout extends Component {
     Object.keys(this.state.orderForm).map((item) => {
       formData.deliveryDetials[item] = this.state.orderForm[item].value;
     });
+    let finalFormData = {};
+    finalFormData[this.props.userEmail] = formData;
+    console.log(formData);
     this.setState({ isLoading: true });
+    console.log(this.props.userId);
     Axios.post(
-      "https://recipe-app-ab93d.firebaseio.com/orders.json?auth=" +
-        this.props.token,
+      `https://recipe-app-ab93d.firebaseio.com/orders/${this.props.userId}.json?auth=${this.props.token}`,
       formData
     ).then(
       (response) => {
@@ -181,6 +182,7 @@ const mapStateToProps = (state) => {
     ingredients: state.burger.ingredients,
     totalPrice: state.burger.totalPrice,
     token: state.auth.authToken,
+    userId: state.auth.userId,
   };
 };
 const mapDispatchToProps = (dispatch) => {

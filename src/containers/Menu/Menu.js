@@ -1,9 +1,6 @@
 import Axios from "axios";
-import { object } from "prop-types";
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { matchPath } from "react-router";
-import Burger from "../../components/Burger/Burger";
 import Loader from "../../components/UI/Loader/Loader";
 import * as actionTypes from "../../store/actions/actions";
 
@@ -14,7 +11,6 @@ class Menu extends Component {
   };
   componentDidMount() {
     if (!this.props.menu) {
-      console.log(this.props.menu);
       Axios.get(
         "https://recipe-app-ab93d.firebaseio.com/details/Menu.json"
       ).then((response) => {
@@ -29,7 +25,6 @@ class Menu extends Component {
         });
       });
     } else {
-      console.log("yo im in the else section");
       this.setState({
         menu: this.props.menu,
         isLoading: false,
@@ -55,6 +50,7 @@ class Menu extends Component {
             <ul style={{ listStyle: "disc", listStylePosition: "inside" }}>
               {Object.keys(this.state.menu[item]).map((ingr, i) => (
                 <li key={i}>
+                  ''
                   {ingr} : {this.state.menu[item][ingr]}
                 </li>
               ))}

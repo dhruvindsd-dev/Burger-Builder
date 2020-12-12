@@ -2,11 +2,6 @@ import React from "react";
 import Burger from "../Burger";
 
 export default function OrderSummary(props) {
-  // const order = Object.keys(props.ingredients).map((key) => {
-  //   if (!!props.ingredients[key]) {
-  //     return <li key={key}>{key + ": " + props.ingredients[key]} pieces</li>;
-  //   }
-  // });
   return (
     <React.Fragment>
       <p className="is-size-2 has-text-weight-semibold">Your Order </p>
@@ -31,10 +26,9 @@ export default function OrderSummary(props) {
       >
         <Burger ingredients={props.ingredients} />
       </div>
-      {/* <ul>{order}</ul> */}
 
       <p className="is-size-4 has-text-success">
-        Total : <strong>${props.totalPrice.toFixed(2)} /-</strong>
+        Total <strong>${props.totalPrice.toFixed(2)} /-</strong>
       </p>
       <br />
       <div className="buttons">

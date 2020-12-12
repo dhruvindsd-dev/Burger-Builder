@@ -7,7 +7,6 @@ import Modal from "../../components/UI/Modal/Modal";
 import { connect } from "react-redux";
 import * as actionTypes from "../../store/actions/actions";
 import Axios from "axios";
-import { authenticate } from "../../store/actions/auth";
 const INGREDIENTPRICES = {
   meat: 0.5,
   salad: 0.2,
@@ -33,7 +32,6 @@ class BurgerBuilder extends Component {
               this.props.addIngredientHandler(item);
             }
           });
-          // this.props.toggleInitialBurgerLoad();
           this.props.cacheBurger(response.data.ingredients);
           this.setState({ isLoadingBurger: false });
         }
