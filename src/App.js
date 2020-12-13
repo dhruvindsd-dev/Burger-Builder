@@ -61,7 +61,6 @@ class App extends Component {
             </Suspense>
           )}
         />
-        <Route path="/user/:type" component={Menu} />
         <Route
           path="/user/:type"
           exact
@@ -78,7 +77,6 @@ class App extends Component {
       routes = (
         <Switch>
           <Route path="/" component={BurgerBuilder} exact />
-          {/* <Route path="/menu" component={Menu} /> */}
           <Route
             path="/menu"
             exact

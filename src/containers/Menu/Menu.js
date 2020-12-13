@@ -1,6 +1,7 @@
 import Axios from "axios";
 import React, { Component } from "react";
 import { connect } from "react-redux";
+import { withRouter } from "react-router";
 import Loader from "../../components/UI/Loader/Loader";
 import * as actionTypes from "../../store/actions/actions";
 
@@ -103,4 +104,4 @@ const mapDispatchToProps = (dispatch) => {
     },
   };
 };
-export default connect(mapStateToProps, mapDispatchToProps)(Menu);
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Menu));
